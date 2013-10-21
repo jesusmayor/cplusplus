@@ -67,7 +67,8 @@ void bubbleSort(vector < int >&list)
 
 int main(int argc, char const *argv[])
 {
-    clock_t tStart = clock();
+	//Initialize the time
+	clock_t tStart = clock();
     if (argc < 3) {
         cout <<
             "I need the algorithm (bubble | quick) and the amount of random numbers to order."
@@ -111,6 +112,7 @@ int main(int argc, char const *argv[])
         //    cout << i << endl;
         //}
 
+		//printing start time less actual time
         printf("Time taken: %.2fs\n", (double)(clock() - tStart)/CLOCKS_PER_SEC);
 
         return 0;
