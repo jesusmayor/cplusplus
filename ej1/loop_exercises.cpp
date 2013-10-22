@@ -10,7 +10,7 @@ int main()
     // 1. create a for loop that prints numbers 1 to 5
 	std::cout << "Ejercicio 1: " << std::endl;
 
-	for(int i = 0; i < 5; i++) {
+	for(int i = 1; i <= 5; i++) {
 		std::cout << i << std::endl;
 	}
 
@@ -20,8 +20,14 @@ int main()
     // 2. create a for loop that iterates through a vector of strings and print
     // them
     
-	std::vector<int> vec = {"uno", "dos", "tres", "cuatro", "cinco"};
-	for(ulong i = 0; i < vec.size(); i++) {
+    std::vector<std::string> vec;
+    vec.push_back("uno");
+    vec.push_back("dos");
+    vec.push_back("tres");
+    vec.push_back("cuatro");
+    vec.push_back("cinco");
+
+	for(int i = 0; i < (int)vec.size(); i++) {
         std::cout << vec[i] << std::endl;
     }
 
@@ -32,13 +38,21 @@ int main()
     // new map of of (char*, int)
     
 	std::map<std::string, float> the_map = {{"zero", 0}, {"uno", 1}, {"dos", 2}};
-
+	for(auto kv : the_map) {
+        std::cout << kv.first << ", " << kv.second << std::endl;
+		//TODO: Nuevo formato.
+    }
 	std::cout << "-------------" << std::endl;
 	std::cout << "Ejercicio 4: " << std::endl;
 
     // 4. create a for loop that gets a map of <string, float> and updates the
     // same map so that it adds "yeah!" to each string and rounds the float
     // number. transform it in place.
+
+	for(auto kv : the_map) {
+        std::cout << kv.first << ", " << kv.second << std::endl;
+		//TODO: Nuevo formato.
+    }
 
 	std::cout << "-------------" << std::endl;
 	std::cout << "Ejercicio 5: " << std::endl;
