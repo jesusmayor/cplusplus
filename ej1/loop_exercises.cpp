@@ -37,11 +37,22 @@ int main()
     // 3. create a for loop that gets a map of <string, float> and returns a
     // new map of of (char*, int)
     
-	std::map<std::string, float> the_map = {{"zero", 0}, {"uno", 1}, {"dos", 2}};
-	for(auto kv : the_map) {
-        std::cout << kv.first << ", " << kv.second << std::endl;
-		//TODO: Nuevo formato.
+    std::map<std::string, float> theMap;
+
+    theMap.insert (std::make_pair("zero", 0));
+	theMap.insert (std::make_pair("uno", 1));
+	theMap.insert (std::make_pair("dos", 2));
+    
+	std::map<char*, int> newMap;
+    std::map<std::string, float>::iterator it = theMap.begin();
+	for(; it!=theMap.end(); ++it) {
+        char* pChar = new char[it->first.size() + 1];
+        std::copy(it->first.begin(),it->first.end(), pChar);
+		pChar[it->first.size()] = '\0'; // Don't forget the terminating 0
+        newMap.insert (std::make_pair( pChar, (int)it->second));
+        std::cout << it->first << ", " << it->second << std::endl;
     }
+
 	std::cout << "-------------" << std::endl;
 	std::cout << "Ejercicio 4: " << std::endl;
 
@@ -49,9 +60,17 @@ int main()
     // same map so that it adds "yeah!" to each string and rounds the float
     // number. transform it in place.
 
-	for(auto kv : the_map) {
-        std::cout << kv.first << ", " << kv.second << std::endl;
-		//TODO: Nuevo formato.
+    std::map<std::string, float> theMap;
+
+    theMap.insert (std::make_pair("zero", 0));
+	theMap.insert (std::make_pair("uno", 1));
+	theMap.insert (std::make_pair("dos", 2));
+    
+    std::map<std::string, float>::iterator it = theMap.begin();
+	for(; it!=theMap.end(); ++it) {
+
+        newMap.insert (std::make_pair( it, (int)it->second));
+        std::cout << it->first << ", " << it->second << std::endl;
     }
 
 	std::cout << "-------------" << std::endl;
