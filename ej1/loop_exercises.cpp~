@@ -64,8 +64,8 @@ int main()
 	it = theMap.begin();
 	for(; it!=theMap.end(); ++it) {
 
-        	//newMap.insert (std::make_pair( it, (int)it->second));
-       		//std::cout << it->first << ", " << it->second << std::endl;
+        	newMap.insert (std::make_pair( it, (int)it->second));
+       		std::cout << it->first << ", " << it->second << std::endl;
 	}
 
 	std::cout << "-------------" << std::endl;

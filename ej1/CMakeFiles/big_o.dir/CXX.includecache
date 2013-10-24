@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/root/cplusplus/ej1/big_o.cpp
+iostream
+-
+random
+-
+vector
+-
+algorithm
+-
+functional
+-
+iterator
+-
+sstream
+-
+time.h
+-
+

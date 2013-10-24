@@ -1,0 +1,1 @@
+/opt/centos/devtoolset-1.1/root/usr/bin/c++       CMakeFiles/big_o.dir/big_o.cpp.o  -o big_o -rdynamic 
