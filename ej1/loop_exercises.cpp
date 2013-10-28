@@ -11,7 +11,7 @@ int main()
 {
     
     // non-c++11 syntax:
-	
+    
     // 1. create a for loop that prints numbers 1 to 5
 	std::cout << "Ejercicio 1: " << std::endl;
 
@@ -43,45 +43,46 @@ int main()
 	// 3. create a for loop that gets a map of <string, float> and returns a
     // new map of of (char*, int)
 	std::cout << "Ejercicio 3: " << std::endl;
-	{
-		std::map<std::string, float> theMap;
-		theMap.insert (std::make_pair("zero", 0));
-		theMap.insert (std::make_pair("uno", 1));
-		theMap.insert (std::make_pair("dos", 2));
-
-		{
-			std::map<char*, int> newMap;
-			std::map<std::string, float>::iterator it = theMap.begin();
-			for(; it!=theMap.end(); ++it) {
-				char* pChar = new char[it->first.size() + 1];
-				std::copy(it->first.begin(),it->first.end(), pChar);
-				pChar[it->first.size()] = '\0'; // Don't forget the terminating 0
-				newMap.insert (std::make_pair( pChar, (int)it->second));
-				std::cout << it->first << ", " << it->second << std::endl;
-			}
-		}
-		std::cout << "-------------" << std::endl;
-
-		// 4. create a for loop that gets a map of <string, float> and updates the
-		// same map so that it adds "yeah!" to each string and rounds the float
-		// number. transform it in place.
-		std::cout << "Ejercicio 4: " << std::endl;
-
-		{
-			std::map<std::string, float> newMap;
-			{
-    			std::map<std::string, float>::iterator it = theMap.begin();
-    			for(; it!=theMap.end(); ++it) {
-    				newMap.insert(std::make_pair( it->first + "yeah!",
-					round(it->second)));
-    			}
-			}
-			std::map<std::string, float>::iterator it = newMap.begin();
-			for(; it!=newMap.end(); ++it) {
-				std::cout << it->first << ", " << it->second << std::endl;
-			}
-		}
-	}
+    {
+        std::map<std::string, float> theMap;
+        theMap.insert (std::make_pair("zero", 0));
+    	theMap.insert (std::make_pair("uno", 1));
+    	theMap.insert (std::make_pair("dos", 2));
+    
+    	{
+    		std::map<char*, int> newMap;
+    		std::map<std::string, float>::iterator it = theMap.begin();
+    		for(; it!=theMap.end(); ++it) {
+    			char* pChar = new char[it->first.size() + 1];
+    			std::copy(it->first.begin(),it->first.end(), pChar);
+    			pChar[it->first.size()] = '\0'; // Don't forget the terminating 0
+    			newMap.insert (std::make_pair( pChar, (int)it->second));
+    			std::cout << it->first << ", " << it->second << std::endl;
+    		}
+    	}
+    	std::cout << "-------------" << std::endl;
+    
+    	// 4. create a for loop that gets a map of <string, float> and updates the
+        // same map so that it adds "yeah!" to each string and rounds the float
+        // number. transform it in place.
+    	std::cout << "Ejercicio 4: " << std::endl;
+    
+    	{
+    		std::map<std::string, float> newMap;
+    		{
+        		std::map<std::string, float>::iterator it = theMap.begin();
+        		for(; it!=theMap.end(); ++it) {
+        			newMap.insert(std::make_pair( it->first + "yeah!",
+    				round(it->second)));
+        			std::cout << it->first << ", " << it->second << std::endl;
+        		}
+    		}
+    		std::map<std::string, float>::iterator it = newMap.begin();
+    		for(; it!=newMap.end(); ++it) {
+    			std::cout << it->first << ", " << it->second << std::endl;
+    		}
+    	}
+    }
 	std::cout << "-------------" << std::endl;
 	//----------------------------------------------------------------------
         
@@ -149,8 +150,7 @@ std::string crearPiramide (int size) {
     return crearPiramide(size ,size);
 }
 
-//Funcion recursiva para construir la pirámide.
-//La he hecho recursiva por rizar el rizo.
+//Funcion recursiva para hacerla un poco mas exótica xD.
 std::string crearPiramide (int size, int totalSize) {
     std::string str;
     if (size >= 0){

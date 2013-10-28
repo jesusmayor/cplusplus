@@ -1,0 +1,2 @@
+/root/cplusplus/ej1/CMakeFiles/big_o.dir
+/root/cplusplus/ej1/CMakeFiles/loop_exercises.dir
