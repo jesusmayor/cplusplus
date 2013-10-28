@@ -46,8 +46,8 @@ int main()
     {
         std::map<std::string, float> theMap;
         theMap.insert (std::make_pair("zero", 0));
-    	theMap.insert (std::make_pair("uno", 1));
-    	theMap.insert (std::make_pair("dos", 2));
+    	theMap.insert (std::make_pair("uno", 1.6));
+    	theMap.insert (std::make_pair("dos", 2.2));
     
     	{
     		std::map<char*, int> newMap;
@@ -103,7 +103,7 @@ int main()
 		}
 	}
 	//5.3
-	std::map<std::string, float> theMap = {{"zero", 0},{"uno", 1},{"dos", 2}};
+	std::map<std::string, float> theMap = {{"zero", 0},{"uno", 1.6},{"dos", 2.2}};
 	{
 		std::map<char*, int> newMap;
 		for(auto kp : theMap) {
