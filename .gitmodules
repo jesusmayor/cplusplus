@@ -1,0 +1,3 @@
+[submodule "MyBotClient/bots"]
+	path = MyBotClient/bots
+	url = https://github.com/clnznr/bots.git
