@@ -11,7 +11,7 @@
 
 namespace KBOT {
 
-int ClientIA::pathFind(int sx, int sy, ClientIA::Cord start, ClientIA::Cord target){
+int ClientIA::pathFind(ClientIA::Cord start, ClientIA::Cord target){
 
 	int **array = new int*[sy];
 	for(int i = 0; i < sy; ++i) {
@@ -41,6 +41,7 @@ int ClientIA::pathFind(int sx, int sy, ClientIA::Cord start, ClientIA::Cord targ
 	    delete [] array[i];
 	}
 	delete [] array;
+	delete x;
 
 	return sol[1].getLast_movement();
 }
@@ -48,57 +49,60 @@ int ClientIA::pathFind(int sx, int sy, ClientIA::Cord start, ClientIA::Cord targ
 
 int ClientIA::decideMovement(const bot & mybot){
 	const bot::position & pos = mybot.get_position();
-	const bot::position & epos = enemies[0].get_position();
 	start.x = pos.first; start.y = pos.second;
+	bool aggresive;
+	float myPunt= -(1.0/(float)mybot.get_energy())-(5*(((*mapE)(pos.first,pos.second)+(*mapA)(pos.first,pos.second))+10.0));
+	float enemyPunt;
+	if (!enemies.empty()){
+		enemyPunt= -(1.0/(float)enemies[0].get_energy())+(5*(((*mapE)(enemies[0].get_position().first,enemies[0].get_position().second)+(*mapA)(enemies[0].get_position().first, enemies[0].get_position().second))-10.0));
 
-	float myPunt= -(1.0/(float)mybot.get_energy())-(5*((maps[0][pos.first][pos.second]+maps[1][pos.first][pos.second])+10.0));
-	float enemyPunt= -(1.0/(float)enemies[0].get_energy())+(5*((maps[0][epos.first][epos.second]+maps[1][epos.first][epos.second])-10.0));
-	bool aggresive = myPunt>enemyPunt;
+		aggresive= myPunt>enemyPunt;
+	}else enemyPunt=-10;
+
 	//traza
 	std::cout << mybot.get_team() << "e " << aggresive << "x " << pos.first << "y " << pos.second << "my " << myPunt << "enemy " << enemyPunt << std::endl;
 
 	if (aggresive) {
+		const bot::position & epos = enemies[0].get_position();
 		target.x = epos.first; target.y = epos.second;
+	}else{
+		target.x = 0; target.y= 0;
 	}
 	if (start.x==target.x && start.y==target.y) return 0;
-	return pathFind(10,10,start,target);
+	return pathFind(start,target);
 }
 
 void ClientIA::generateMaps(){
-	int msy=10;
-	int msx=10;
-	//std::vector <bot *> myTeam =_bots.team_bots(_id);
-	int numMyT = 5;
-	maps[0]=new float*[msy];
-	maps[1]=new float*[msy];
-	for(int i = 0; i < msy; ++i) {
-		maps[0][i] = new float[msx];
-		maps[1][i] = new float[msx];
-	    for(int j=0; j<msx; j++) {
-	    	maps[0][i][j] = 0.0;
-	    	maps[1][i][j] = 0.0;
-	    }
-	}
+	int numMyT = 0;
+	mapE = new ublas::matrix<float>(sx,sy);
+	mapA = new ublas::matrix<float>(sx,sy);
+    for (short int i = 0; i < (signed)mapE->size1(); ++ i)
+        for (short int j = 0; j < (signed)mapA->size2(); ++ j){
+            (*mapE)(i, j) = 0.0;
+            (*mapA)(i, j) = 0.0;
+        }
 
-	if (numMyT!=0) _bots.for_each_bot([&,&numMyT,&msx,&msy] (const bot & bot) {
+	_bots.for_each_bot([&,&numMyT] (const bot & bot) {
+		if (_id == bot.get_team()) numMyT++;
+	});
+
+	if (numMyT!=0) _bots.for_each_bot([&,&numMyT] (const bot & bot) {
 		const bot::position & pos = bot.get_position();
 		bool is_ally = (_id == bot.get_team());
-		for(int i=pos.first-2;i<=(signed)(pos.first+2);i++){ //5
-			for(int j=pos.second-2;j<=(signed)(pos.second+2);j++){ //5x5
-				if (i>=0 && i<msy && j>=0 && j<msx){
+		for(int i=pos.first-2;i<=(signed)(pos.first+2);i++) //5
+			for(int j=pos.second-2;j<=(signed)(pos.second+2);j++) //5x5
+				if (i>=0 && i<sy && j>=0 && j<sx){
 					if(std::abs(i-(signed)pos.first)==2 || std::abs(j-(signed)pos.second)==2){
-						if (is_ally) maps[1][i][j]+=((float)-1/(numMyT*2));
-						else maps[0][i][j]+=((float)1/(numMyT*2));
+						if (is_ally) (*mapA)(i,j)+=((float)-1/(numMyT*2));
+						else (*mapE)(i,j)+=((float)1/(numMyT*2));
 					}else if (std::abs(i-(signed)pos.first)==1 || std::abs(j-(signed)pos.second)==1){
-						if (is_ally) maps[1][i][j]+=((float)-1/numMyT);
-						else maps[0][i][j]+=((float)1/numMyT);
+						if (is_ally) (*mapA)(i,j)+=((float)-1/numMyT);
+						else (*mapE)(i,j)+=((float)1/numMyT);
 					}else{
-						if (is_ally) maps[1][i][j]+=-10;
-						else maps[0][i][j]+=10;
+						if (is_ally) (*mapA)(i,j)+=-10;
+						else (*mapE)(i,j)+=10;
 					}
 				}
-			}
-		}
 	});
 }
 
@@ -114,22 +118,29 @@ void ClientIA::potentialObjetives(){
     std::sort(enemies.begin(), enemies.end(), [&](bot a, bot b){
 		const bot::position & posA = a.get_position();
 		const bot::position & posB = b.get_position();
-		return (-(1.0/(float)a.get_energy())+(5*(maps[0][posA.first][posA.second]-10.0)))<=(-(1.0/(float)b.get_energy())+(5*(maps[0][posB.first][posB.second]-10.0)));
+		return (-(1.0/(float)a.get_energy())+(5*((*mapE)(posA.first,posA.second)-10.0)))<=(-(1.0/(float)b.get_energy())+(5*((*mapE)(posB.first,posB.second)-10.0)));
 	});
 
     std::sort(allies.begin(), allies.end(), [&](bot a, bot b){
 		const bot::position & posA = a.get_position();
 		const bot::position & posB = b.get_position();
-		return (-(1.0/(float)a.get_energy())-(5*(maps[1][posA.first][posA.second]+10.0)))<=(-(1.0/(float)b.get_energy())-(5*(maps[1][posB.first][posB.second]+10.0)));
+		return (-(1.0/(float)a.get_energy())-(5*((*mapA)(posA.first,posA.second)+10.0)))<=(-(1.0/(float)b.get_energy())-(5*((*mapA)(posB.first,posB.second)+10.0)));
 	});
 }
 
-ClientIA::ClientIA(const bots & bots,bot::team_id & id)
+ClientIA::ClientIA(const bots & bots,bot::team_id & id,short int x, short int y)
 : _bots(bots),
-  _id(id)
+  _id(id),
+  sx(x),
+  sy(y)
 {
 	generateMaps();
 	potentialObjetives();
 }
 
+ClientIA::~ClientIA()
+{
+	delete mapA;
+	delete mapE;
+}
 }

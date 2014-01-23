@@ -67,16 +67,19 @@ void KBOT::ClientConnection::handle_read_command(const boost::system::error_code
 				ia >> _bots;
 			}
 		}
-		KBOT::ClientIA c(_bots,_id);
-		_bots.for_each_bot([&,&c] (const bot & mybot) {
+		//TODO change size
+		KBOT::ClientIA * c = new KBOT::ClientIA(_bots,_id, 10, 10);
+		_bots.for_each_bot([&] (const bot & mybot) {
 			if (mybot.get_team()==_id){
+				const bot::position pos= mybot.get_position();
 				std::ostream _packetToSendstream(&_packetToSend);
-				_packetToSendstream << "move " << mybot.get_position().first << " " << mybot.get_position().second << " " << c.decideMovement(mybot) << "\n";
+				_packetToSendstream << "move " << pos.first << " " << pos.second << " " << c->decideMovement(mybot) << "\n";
 				boost::asio::async_write(_socket, _packetToSend,
 					boost::bind(&ClientConnection::handle_write_request,this,
 					boost::asio::placeholders::error));
 			}
 		});
+		delete c;
 	}
 	else
 	{
