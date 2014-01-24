@@ -41,13 +41,14 @@ void KBOT::ClientConnection::handle_read_command(const boost::system::error_code
 
 		// Read the response headers, which are terminated by a blank line.
 		if(command == "welcome") {
-			stream >> _id;
 			std::cout << data << std::endl;
-			//ai.set_team(id);
-			while(!stream.eof()) {
-				std::string a;
-				stream >> a;
-				//state << a << " ";
+			stream >> _id;
+			{
+				boost::mutex::scoped_lock lock(_state_mutex);
+				stream >> _sx;
+				stream >> _sy;
+	            std::cout << "setting field: " << _sx << " x " << _sy << std::endl;
+				_bots.set_size(_sx,_sy);
 			}
 		}
 		else if(command == "state") {
@@ -67,8 +68,7 @@ void KBOT::ClientConnection::handle_read_command(const boost::system::error_code
 				ia >> _bots;
 			}
 		}
-		//TODO change size
-		KBOT::ClientIA * c = new KBOT::ClientIA(_bots,_id, 10, 10);
+		KBOT::ClientIA * c = new KBOT::ClientIA(_bots,_id, _sx, _sy);
 		_bots.for_each_bot([&] (const bot & mybot) {
 			if (mybot.get_team()==_id){
 				const bot::position pos= mybot.get_position();
@@ -135,12 +135,15 @@ void KBOT::ClientConnection::handle_resolve(const boost::system::error_code& err
 }
 
 KBOT::ClientConnection::ClientConnection(boost::asio::io_service& io_service, const std::string& server,
-		const std::string& port, bots & bts, boost::mutex & sm, bot::team_id & id)
+		const std::string& port, bots & bts, boost::mutex & sm, bot::team_id & id,
+		int & sx, int & sy)
 : _resolver(io_service),
   _socket(io_service),
   _bots(bts),
   _state_mutex(sm),
-  _id(id)
+  _id(id),
+  _sx(sx),
+  _sy(sy)
 {
 	// Start an asynchronous resolve to translate the server and service names
 	// into a list of endpoints.

@@ -13,9 +13,9 @@
 
 using boost::asio::ip::tcp;
 
-void windowThread(KBOT::FrontendView * window,bots & bots,boost::mutex & state_mutex){
-	while(true) {
-		window->draw(bots,state_mutex);
+void windowThread(KBOT::FrontendView * window,bots & bots,boost::mutex & state_mutex, int & sx, int & sy){
+	while(!window->gameover) {
+		window->draw(bots,state_mutex, sx, sy);
 	}
 }
 
@@ -24,6 +24,10 @@ void windowThread(KBOT::FrontendView * window,bots & bots,boost::mutex & state_m
 
 /**
  * Main Class of the client
+ *
+ * Crea dos threads uno para el Singlentone de la pantalla y otro para
+ * la conexión con el servidor. En el servidor llama a la lógica de la IA.
+ *
  * @params argv[] Need two params: server and port.
  */
 int main(int argc, char* argv[])
@@ -39,9 +43,10 @@ int main(int argc, char* argv[])
 		try{
 		    std::cout << "StartClientMain" << std::endl;
 		    boost::asio::io_service io_service;
-		    KBOT::ClientConnection c(io_service, argv[1], argv[2],bots, state_mutex, id);
+		    int sx=0,sy=0;
+		    KBOT::ClientConnection c(io_service, argv[1], argv[2],bots, state_mutex, id,sx,sy);
 	        KBOT::FrontendView* window = KBOT::FrontendView::getInstance();
-		    boost::thread t(windowThread,window,boost::ref(bots),boost::ref(state_mutex));
+		    boost::thread t(windowThread,window,boost::ref(bots),boost::ref(state_mutex),boost::ref(sx),boost::ref(sy));
 	        io_service.run();
 		    std::cout << "EndClientMain" << std::endl;
 		}catch (std::exception& e){

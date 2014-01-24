@@ -7,6 +7,8 @@ KBOT::FrontendView* KBOT::FrontendView::m_pInstance = nullptr;
 /** This function is called to create an instance of the class.
 Calling the constructor publicly is not allowed. The constructor
 is private and is only called by this Instance function.
+
+SINGLENTON DE LA PANTALLA
 */
 
 void set_screen(int w, int h, int fw = 0, int fh = 0) {
@@ -31,11 +33,16 @@ KBOT::FrontendView::FrontendView()
     SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 16 );
     SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
 
-    set_screen(500, 500,10,10);
+    set_screen(500, 500);
 
 }
 
-void KBOT::FrontendView::draw(bots & bots, boost::mutex & state_mutex)
+
+/**
+ * No pinta bien la pantalla si las dimensiones no son cuadradas!
+ * (El tamaño no importa mientras sea proporcional ;P xD)
+ */
+void KBOT::FrontendView::draw(bots & bots, boost::mutex & state_mutex,int & sx,int & sy)
 {
 	while (!gameover){
 		if (SDL_PollEvent(&event)) {
@@ -64,10 +71,15 @@ void KBOT::FrontendView::draw(bots & bots, boost::mutex & state_mutex)
 			// segfaults if it draws during a state update (drawing +
 			// incomplete state is fatal)
 			boost::mutex::scoped_lock lock(state_mutex);
+			if (_sx!=sx || _sy!=sy) {
+				_sx=sx;
+				_sy=sy;
+				set_screen(500,500,sx,sy);
+			}
 			bots.for_each_bot([&bots] (const bot & the_bot) {
 				auto t = the_bot.get_team() + 1;
 
-				glColor3f(t * 0.2, t * 0.3, t * 0.7);
+				glColor3f(t * 0.2, t * 0.1, t * 0.1);
 				const bot::position & pos = the_bot.get_position();
 
 				// WARNING deprecated OpenGL!

@@ -11,6 +11,10 @@
 
 namespace KBOT {
 
+/**
+ * Se encarga de encontrar la ruta entre el start y el target sin
+ * chocar con bots
+ */
 int ClientIA::pathFind(ClientIA::Cord start, ClientIA::Cord target){
 
 	int **array = new int*[sy];
@@ -46,31 +50,88 @@ int ClientIA::pathFind(ClientIA::Cord start, ClientIA::Cord target){
 	else return 0;
 }
 
-
+/**
+ * Es llamado desde el bucle de la conexión. Decide el target para un bot.
+ * Este
+ */
 int ClientIA::decideMovement(const bot & mybot){
 	const bot::position & pos = mybot.get_position();
 	start.x = pos.first; start.y = pos.second;
 	bool aggresive;
+	//Ataca si su puntuacón (incluyendo la posición global) es mejor que la del enemigo.
 	float myPunt= -(1.0/(float)mybot.get_energy())-(5*(((*mapE)(pos.first,pos.second)+(*mapA)(pos.first,pos.second))+10.0));
 	float enemyPunt;
 	if (!enemies.empty()){
 		enemyPunt= -(1.0/(float)enemies[0].get_energy())+(5*(((*mapE)(enemies[0].get_position().first,enemies[0].get_position().second)+(*mapA)(enemies[0].get_position().first, enemies[0].get_position().second))-10.0));
-		aggresive= myPunt>enemyPunt;
+		aggresive= myPunt>=enemyPunt;
 	}else enemyPunt=-10;
 
 	//traza
-	std::cout << mybot.get_team() << "e " << aggresive << "x " << pos.first << "y " << pos.second << "my " << myPunt << "enemy " << enemyPunt << std::endl;
+	//std::cout << mybot.get_team() << "e " << aggresive << "my " << myPunt << "enemy " << enemyPunt << std::endl;
 
+	//Si es mejor su posición, entrará en modo agresivo y se moverá hacia el enemigo.
 	if (aggresive) {
 		const bot::position & epos = enemies[0].get_position();
 		target.x = epos.first; target.y = epos.second;
-	}else{
-		target.x = 0; target.y= 0;
+	}else{ //Si no lo es, huirá a la parte mas segura de al lado del bot aliado mas fuerte (incluyendo posición estratégica)
+		if (!allies.empty()){
+			const bot::position & apos = allies[0].get_position();
+			float minor = 0.0;
+			float act = 0.0;
+			target.x = apos.first; target.y=apos.second;
+			for(int i=apos.first-1;i<=(signed)(apos.first+1);i++) //3
+				for(int j=apos.second-1;j<=(signed)(apos.second+1);j++) //3x3
+				{
+					if (i>=0 && i<sy && j>=0 && j<sx){
+						if(std::abs(i-(signed)apos.first)==1 || std::abs(j-(signed)apos.second)==1){
+							act = (*mapE)(i,j)+(*mapA)(i,j);
+							if (act<minor && act>-7.0F){
+								minor=act;
+								target.x = i; target.y=j;
+							}
+						}
+					}
+				}
+		}
 	}
+
+	//Si el destino es el mismo bot, no hace nada. (Pocas veces pasará)
 	if (start.x==target.x && start.y==target.y) return 0;
-	return pathFind(start,target);
+
+	//Busca el camino hacia el target. Si no es alcanzable, attkdir será 0
+	int attkdir = pathFind(start,target);
+	if (attkdir == 0) {
+		//Si no es alcanzable (está encerrado) Atacará al enemigo con menos vida.
+		//KAMIKAZE MODE! xD
+		std::vector<bot *> bs= const_cast<bots*>(&_bots)->adjacent(pos);
+		if (!bs.empty()){
+			for(unsigned int i = 0; i<bs.size(); ++i) {
+				if (_id == bs[i]->get_team()){
+					bs.erase(bs.begin()+i);
+				}
+			}
+
+			if (!bs.empty()) {
+				std::sort(bs.begin(), bs.end(), [](bot* a, bot* b){
+					return (a->get_energy()<=b->get_energy());
+				});
+				target.x=bs[0]->get_position().first;
+				target.y=bs[0]->get_position().second;
+				return pathFind(start,target);
+			}
+		}
+
+	}
+	return attkdir;
 }
 
+/**
+ * Genera mapas de pesos. Los enemigos puntuan positivo y los aliados negativo
+ * Zonas negativas serán mas seguras. Tendrémos dos mapas diferentes, uno solo con
+ * la parte positiva y otra con la negativa. Juntados darán un mapa completo.
+ *
+ * En este mapa se basa la heuristica base de la IA.
+ */
 void ClientIA::generateMaps(){
 	int numMyT = 0;
 	mapE = new ublas::matrix<float>(sx,sy);
@@ -105,6 +166,12 @@ void ClientIA::generateMaps(){
 	});
 }
 
+/**
+ * Genera un vector con los bots mas debiles y más fuertes ordenados.
+ * Realmente solo se usa la posición 0, pero una posible mejora sería
+ * buscar las X primeras opciones y atacar a la mas cercana o algo así.
+ * No ha sido hecho por falta de tiempo.
+ */
 void ClientIA::potentialObjetives(){
 	_bots.for_each_bot([&] (const bot & bot) {
 		if (_id == bot.get_team()){
@@ -127,6 +194,9 @@ void ClientIA::potentialObjetives(){
 	});
 }
 
+/**
+ * Constructor de la IA. Se instancia una vez y luego se llama a decideMovement(bot).
+ */
 ClientIA::ClientIA(const bots & bots,bot::team_id & id,short int x, short int y)
 : _bots(bots),
   _id(id),

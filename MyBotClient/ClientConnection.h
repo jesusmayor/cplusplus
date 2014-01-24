@@ -20,9 +20,12 @@ namespace KBOT{
 		bots & _bots;
 		boost::mutex & _state_mutex;
 		bot::team_id & _id;
+		int & _sx;
+		int & _sy;
 	public:
 		ClientConnection(boost::asio::io_service&, const std::string&,
-				const std::string&, bots &, boost::mutex &, bot::team_id &);
+				const std::string&, bots &, boost::mutex &, bot::team_id &,
+				int &,int &);
 		void handle_write_request(const boost::system::error_code& );
 		void handle_read_command(const boost::system::error_code&);
 		void handle_connect(const boost::system::error_code&, boost::asio::ip::tcp::resolver::iterator);

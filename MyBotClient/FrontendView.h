@@ -22,9 +22,11 @@ namespace KBOT{
 	class FrontendView{
 		public:
 			static FrontendView* getInstance();
-			void draw(bots &, boost::mutex &);
-		private:
+			void draw(bots &, boost::mutex &,int &,int &);
 			bool gameover;
+		private:
+			int _sx=0;
+			int _sy=0;
 		    SDL_Event event;
 			static FrontendView* m_pInstance;
 			FrontendView();  // Private so that it can  not be called
