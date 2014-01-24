@@ -1,7 +1,7 @@
 cplusplus
 =========
 
-Práctica 2 = Ej1
+Práctica 2
 ================
 1.-Run and gather execution time (4 or 5 samples), then draw a graph (with Calc, octave, gnuplot).
 
@@ -10,11 +10,11 @@ Result Data:
 Quick: 0.004, 0.004, 0.004, 0.004, 0.01, 0.07, 0.505
 Bubble: 0.004, 0.004, 0.004, 0.026, 1.159, 1m31s, explode
 
-Result File: ej1/Results.jpg
+Result File: ej2/Results.jpg
 
 2.- modify the code in github and program the comparison (take more samples).
 
-Result file: ej1/Big_o.cpp
+Result file: ej2/Big_o.cpp
 
 3.- upload results to your github account. 
 
