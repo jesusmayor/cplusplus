@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 2.6)
 
-project (botclient)
+project (MyBotClient)
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
 
@@ -20,13 +20,13 @@ include_directories(bots)
 
 link_directories( ${link_directories} ./bots ) 
 
-add_executable(botclient main.cpp botclient.cpp)
+add_executable(MyBotClient A_Star.cpp State_Base.cpp State.cpp ClientIA.cpp FrontendView.cpp ClientConnection.cpp Client.cpp)
 
-target_link_libraries(botclient bots)
+target_link_libraries(MyBotClient bots)
 
-target_link_libraries(botclient ${SDL_LIBRARY})
-target_link_libraries(botclient ${OPENGL_LIBRARY})
-target_link_libraries(botclient ${Boost_LIBRARIES})
+target_link_libraries(MyBotClient ${SDL_LIBRARY})
+target_link_libraries(MyBotClient ${OPENGL_LIBRARY})
+target_link_libraries(MyBotClient ${Boost_LIBRARIES})
 
 FIND_PACKAGE(Doxygen)
 if (NOT DOXYGEN_FOUND)
