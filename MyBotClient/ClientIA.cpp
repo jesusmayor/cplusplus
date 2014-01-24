@@ -42,8 +42,8 @@ int ClientIA::pathFind(ClientIA::Cord start, ClientIA::Cord target){
 	}
 	delete [] array;
 	delete x;
-
-	return sol[1].getLast_movement();
+	if (sol!=NULL) return sol[1].getLast_movement();
+	else return 0;
 }
 
 
@@ -55,7 +55,6 @@ int ClientIA::decideMovement(const bot & mybot){
 	float enemyPunt;
 	if (!enemies.empty()){
 		enemyPunt= -(1.0/(float)enemies[0].get_energy())+(5*(((*mapE)(enemies[0].get_position().first,enemies[0].get_position().second)+(*mapA)(enemies[0].get_position().first, enemies[0].get_position().second))-10.0));
-
 		aggresive= myPunt>enemyPunt;
 	}else enemyPunt=-10;
 
